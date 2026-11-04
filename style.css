@@ -1,11 +1,11 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: rgb(193, 173, 230);
+    background-color: whitesmoke;
     text-align: center;
     padding: 20px;
 }
 h1 {
-    color: darkblue;
+    color: rgb(196, 154, 82);
     font-size: 30px;
 }
 h4 {
@@ -34,7 +34,7 @@ h4 {
 }
 
 #searchButton:hover {
-    background-color: blue;
+    background-color: goldenrod;
 }
 
 #results {
@@ -45,10 +45,11 @@ h4 {
     padding: 20px;
     border-radius: 8px;
     text-align: left;
+   
 }
 
 #word {
-    color: darkblue;
+    color: black;
 }
 
 #definition {
