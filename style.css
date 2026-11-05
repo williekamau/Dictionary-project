@@ -49,7 +49,7 @@ h4 {
 }
 
 #word {
-    color: black;
+    color: yellowgreen;
 }
 
 #definition {
@@ -58,6 +58,6 @@ h4 {
 }
 
 #example {
-    color: gray;
+    color: rgb(233, 233, 11);
     font-style: italic;
 }

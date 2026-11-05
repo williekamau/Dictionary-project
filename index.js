@@ -5,46 +5,62 @@ const pronunciationDisplay = document.getElementById("pronunciation");
 const definitionDisplay = document.getElementById("definition");
 const exampleDisplay = document.getElementById("example");
 const audioDisplay = document.getElementById("audio");
+const messageElement = document.getElementById("message");
 
 function searchWord() {
-    const word = wordInput.value.trim();
-    if (word === "") {
-        alert("Please enter a word.");
-        return;
-    }
-    
-    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data && data.length > 0)  {
-                const wordData = data[0];
-                wordDisplay.textContent = wordData.word;
-                pronunciationDisplay.textContent = wordData.phonetic || "N/A";
-            definitionDisplay.innerHTML = wordData.meanings.map(m =>
-    `<div><h3>${m.partOfSpeech}</h3><ul>${m.definitions.map(d => `<li>${d.definition}</li>`).join("")}</ul></div>`
-).join("");
-               const examples = wordData.meanings.flatMap(m => m.definitions.filter(d => d.example).map(d => `<li>${d.example}</li>`));
-exampleDisplay.innerHTML = examples.length ? `<ul>${examples.join("")}</ul>` : "N/A";
-                if (wordData.phonetics && wordData.phonetics.length > 0 && wordData.phonetics[0].audio) {
-                    audioDisplay.innerHTML = `<audio controls src="${wordData.phonetics[0].audio}"></audio>`;
-                } else {
-                    audioDisplay.innerHTML = "N/A";
+    const word = wordInput.value.trim(); //get the word entered by the user
+  //clear previous results  
+    wordDisplay.textContent = "";
+    messageElement.textContent = "";
+  pronunciationDisplay.textContent = "";
+  definitionDisplay.innerHTML = "";
+  exampleDisplay.innerHTML = "";
+  audioDisplay.innerHTML = "";
+  if (word==="") {
+    messageElement.textContent("Please enter a word to search.");
+    return;
+  }
+  fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error("Word not found.kindly check the spelling");
+      }
+    })
+    .then(data => {
+        if (data&&data.length > 0) {
+            const wordData = data[0];
+            wordDisplay.textContent = wordData.word;
+            pronunciationDisplay.textContent = wordData.phonetic || "N/A";
+            definitionDisplay.innerHTML = wordData.meanings.map(meaning => {
+                const partOfSpeech = meaning.partOfSpeech;
+                const definitions = meaning.definitions.map(def => `<li>${def.definition}</li>`).join("");
+                return `<p><strong>${partOfSpeech}:</strong></p><ul>${definitions}</ul>`;
+            }).join("");
+            exampleDisplay.innerHTML = wordData.meanings.map(meaning => {
+                return meaning.definitions.map(def => def.example ? `<p><em>Example:</em> ${def.example}</p>` : "").join("");
+            }).join("");
+            if (wordData.phonetics && wordData.phonetics.length > 0) {
+                const audioUrl = wordData.phonetics.find(phonetic => phonetic.audio)?.audio;
+                if (audioUrl) {
+                    audioDisplay.innerHTML = `<audio controls><source src="${audioUrl}" type="audio/mpeg">Your browser does not support the audio element.</audio>`;
                 }
-            }  else {
-                wordDisplay.textContent = "word not found. please confirm the spelling";
             }
-        })
-        .catch(error => {
-            console.error("word not found. please confirm the spelling:", error);
-            wordDisplay.textContent = "word not found. please confirm the spelling";
-        });  
-
+        } else {
+            messageElement.textContent = "No data found for the entered word.";
+        }
+    })
+    //handle errors and display a message to the user
+    .catch(error => {
+        console.error("Error:", error);
+        messageElement.textContent = "Word not found.kindly check your spelling.";
+    });
 }
 
 searchButton.addEventListener("click", searchWord);
-searchButton.addEventListener("keypress", function(event) {
+wordInput.addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         searchWord();
-    }     
-}); 
-   
+    }
+});
